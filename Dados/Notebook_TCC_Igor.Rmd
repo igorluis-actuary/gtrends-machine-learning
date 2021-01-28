@@ -1,0 +1,171 @@
+---
+title: "TCC Igor"
+output: html_notebook
+---
+
+Carregar os pacotes:
+```{r}
+library(tidyverse)
+options(scipen = 666)
+```
+
+
+
+## Diretório
+
+```{r}
+
+setwd("C:\\Users\\igorl\\Documents\\UFPB\\P10\\TCC 2\\Dados")
+
+```
+
+Lendo os dados:
+
+```{r}
+dados <- read_csv("dados_todos.csv")
+
+glimpse(dados)
+
+table(dados$sentido_ret)
+```
+
+Excluir as variáveis X1 e X:
+
+```{r}
+dados <- dados %>% 
+  select(-X1)
+
+
+glimpse(dados)
+```
+
+Gráfico de barras do sentido do retorno:
+
+```{r}
+ggplot(dados, aes(sentido_ret, fill = as.factor(sentido_ret)))  +
+  geom_bar(colour = 'black') + guides(fill = FALSE)
+```
+
+
+Gráfico do google trends para todos os ativos:
+
+```{r}
+ggplot(dados, aes(x = date, y = value, color = ativo)) + 
+  geom_line() +
+  facet_wrap(~ativo) +
+  xlab("Ano") + ylab("Google Trends") + guides(color = FALSE)
+```
+
+Gráfico do retorno por ativo:
+
+```{r}
+ggplot(dados, aes(x = date, y = retorno, color = ativo)) + 
+  geom_line() +
+  facet_wrap(~ativo) +
+  xlab("Ano") + ylab("Retorno") + guides(color = FALSE)
+
+```
+
+Gráfico do preço de fechamento:
+
+```{r}
+
+d <- dados %>% 
+  filter(ativo != "IBOV")
+
+ibov <- dados %>% 
+  filter(ativo == "IBOV")
+
+ggplot(d, aes(x = date, y = fechamento, color = ativo)) + 
+  geom_line() +
+  facet_wrap(~ativo) +
+  xlab("Ano") + ylab("Preço de fechamento") + guides(color = FALSE)
+```
+
+Fechamento IBOV:
+
+```{r}
+ggplot(ibov, aes(x = date, y = fechamento)) +
+  geom_line() +
+  xlab("Ano") + ylab("IBOV") 
+```
+
+gráfico do volume:
+
+```{r}
+ggplot(d, aes(x = date, y = volume, color = ativo)) + 
+  geom_line() +
+  facet_wrap(~ativo) +
+  xlab("Ano") + ylab("Volume") + guides(color = FALSE)
+```
+
+Estatística descritiva do google trend:
+
+```{r}
+dados %>% 
+  group_by(ativo) %>% 
+  summarise(N = n(), Média = mean(value), Mediana = median(value), Desvio_Padrão = sd(value), Mínimo = min(value), Máximo = max(value))
+```
+
+Por Ano
+```{r}
+dados %>% 
+  group_by(Ano) %>% 
+  summarise(N = n(), Média = mean(value), Mediana = median(value), Desvio_Padrão = sd(value), Mínimo = min(value), Máximo = max(value))
+```
+
+Estatística Descritiva do Retorno por ativo:
+```{r}
+dados %>% 
+  group_by(ativo) %>% 
+  summarise(N = n(), Média = mean(retorno), Mediana = median(retorno), Desvio_Padrão = sd(retorno), 
+            Mínimo = min(retorno), Máximo = max(retorno))
+
+```
+
+Por ativo e Ano:
+
+```{r}
+dados %>% 
+  group_by(ativo, Ano) %>% 
+  summarise(N = n(), Média = mean(retorno), Mediana = median(retorno), Desvio_Padrão = sd(retorno), 
+            Mínimo = min(retorno), Máximo = max(retorno))
+```
+
+Por Ano:
+
+```{r}
+dados %>% 
+  group_by(Ano) %>% 
+  summarise(N = n(), Média = mean(retorno), Mediana = median(retorno), Desvio_Padrão = sd(retorno), 
+            Mínimo = min(retorno), Máximo = max(retorno))
+```
+
+Base de treino e base de teste
+
+```{r}
+#Treino
+treino <- dados %>% filter(Ano!=2018)
+treino
+
+#Ativo alvo
+treino.ibov <- treino %>% filter(ativo == "IBOV")
+treino.ibov
+#Teste
+teste <- dados %>% filter(Ano == 2018)
+teste
+teste.ibov <- teste %>% filter(ativo == "IBOV")
+teste.ibov
+```
+
+
+
+# Ln do volume
+```{r}
+dados$volume <- log(dados$volume)
+
+```
+  
+
+
+
